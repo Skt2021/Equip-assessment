@@ -2,7 +2,7 @@
   "name": "equip-assessment",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://Skt2021.github.io/Equip-assessment",
+  "homepage": "https://Skt2021.github.io/Equip-assessment",
   "dependencies": {
     "@react-pdf/renderer": "^3.1.12",
     "@testing-library/jest-dom": "^5.16.5",
@@ -18,9 +18,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
