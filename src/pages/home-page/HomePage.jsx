@@ -88,7 +88,7 @@ function HomePage() {
     setSelectedText('');
   };
 
-  const handleSaveAsTemplate = () => {
+  const encodeTemplateString = () => {
     let modifiedContent = templateContent;
 
     variablesData.forEach((variable) => {
@@ -102,6 +102,13 @@ function HomePage() {
       );
     });
 
+    return modifiedContent;
+  };
+
+  const saveAsTemplate = () => {
+    const modifiedContent = encodeTemplateString();
+
+    setTemplateContent(modifiedContent);
     setData({
       ...data,
       content: modifiedContent,
@@ -122,8 +129,10 @@ function HomePage() {
   };
 
   const handleVariableDeletion = (variable) => {
+    const modifiedTemplate = encodeTemplateString();
+
     const placeholder = `{${variable.name}}`;
-    const modifiedContent = templateContent.replace(
+    const modifiedContent = modifiedTemplate.replace(
       new RegExp(placeholder, 'g'),
       `${variable.value ?? ''}`
     );
@@ -173,7 +182,7 @@ function HomePage() {
                   }
                 </PDFDownloadLink>
               </Button>
-              <Button onClick={handleSaveAsTemplate}>Save as Template</Button>
+              <Button onClick={saveAsTemplate}>Save as Template</Button>
             </div>
           </div>
         </section>
