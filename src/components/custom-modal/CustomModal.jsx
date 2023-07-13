@@ -8,7 +8,7 @@ const CustomModal = ({ makeVariable, handleCancel, selectedText }) => {
 
   useEffect(() => {
     setVariableValue(selectedText);
-  }, []);
+  }, [selectedText]);
 
   const handleSubmit = () => {
     if (variableName) {
