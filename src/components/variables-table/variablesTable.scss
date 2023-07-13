@@ -1,0 +1,20 @@
+.variable-table {
+  .title {
+    display: flex;
+    justify-content: center;
+  }
+
+  .divider {
+    margin: 0px;
+  }
+
+  .variable-form {
+    padding: 0px 20px;
+    .ant-space {
+      width: 100%;
+      .ant-space-item {
+        flex-grow: 1;
+      }
+    }
+  }
+}

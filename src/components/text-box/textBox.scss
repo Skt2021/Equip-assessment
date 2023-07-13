@@ -1,0 +1,23 @@
+.textbox {
+  width: 80%;
+  height: 80%;
+  padding: 40px 30px;
+  background-color: #ffffff;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  font-size: 20px;
+  line-height: 30px;
+  letter-spacing: 1px;
+
+  .variable {
+    text-align: center;
+    background-color: rgba(243, 134, 50, 0.3);
+    box-shadow: inset 0 0 0 1.4px;
+    color: #f38632;
+    padding: 3px 6px;
+    margin: 0px 2px;
+  }
+
+  .placeholder {
+    color: #f3863280;
+  }
+}
