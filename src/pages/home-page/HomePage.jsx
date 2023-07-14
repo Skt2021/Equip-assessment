@@ -23,8 +23,7 @@ function HomePage() {
 
   useEffect(() => {
     const currentTemplateID = '1';
-
-    const data = sessionStorage.getItem('templates') ?? jsonData;
+    const data = sessionStorage.getItem('template-data') ?? jsonData;
     const formattedData = typeof data === 'object' ? data : JSON.parse(data);
 
     const templateData = formattedData.templates.filter(
@@ -47,6 +46,8 @@ function HomePage() {
 
     setTemplateContent(templateData.content);
     setData(templateData);
+
+    sessionStorage.removeItem('template-data');
   }, [searchParams]);
 
   const handleConversionToVariable = (variableData) => {
@@ -114,18 +115,27 @@ function HomePage() {
       content: modifiedContent,
     });
 
-    sessionStorage.setItem(
-      'templates',
-      JSON.stringify({
-        templates: [
-          {
-            id: '1',
-            content: modifiedContent,
-            variables: data.variables,
-          },
-        ],
-      })
-    );
+    const templateData = {
+      templates: [
+        {
+          id: '1',
+          content: modifiedContent,
+          variables: data.variables,
+        },
+      ],
+    };
+
+    const formattedTemplateData = JSON.stringify(templateData, null, 2);
+    const blob = new Blob([formattedTemplateData], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = 'template-data.json';
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleVariableDeletion = (variable) => {
