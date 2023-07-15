@@ -75,6 +75,14 @@ function HomePage() {
   };
 
   const handleVariableValue = (variableID, variableName, variableValue) => {
+    const modifiedContent = encodeTemplateString();
+
+    setTemplateContent(modifiedContent);
+    setData({
+      ...data,
+      content: modifiedContent,
+    });
+
     let variables = variablesData.filter(
       (variable) => variable.name !== variableName
     );
