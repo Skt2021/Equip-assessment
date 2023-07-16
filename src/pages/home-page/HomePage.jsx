@@ -16,7 +16,7 @@ import { dummyValues } from '../../data/variableData';
 function HomePage() {
   const [data, setData] = useState();
   const [templateContent, setTemplateContent] = useState();
-  const [variablesData, setVariablesData] = useState([]);
+  const [variablesValues, setVariablesValues] = useState({});
   const [selectedText, setSelectedText] = useState('');
 
   const [searchParams] = useSearchParams();
@@ -30,18 +30,8 @@ function HomePage() {
       (template) => template.id === currentTemplateID
     )[0];
 
-    if (searchParams.get('blank')) {
-      setVariablesData(templateData.variables);
-    } else {
-      const variablesWithValues = templateData.variables.map((variable) => {
-        const updatedVariable = {
-          ...variable,
-          value: dummyValues[variable.name],
-        };
-        return updatedVariable;
-      });
-
-      setVariablesData(variablesWithValues);
+    if (!searchParams.get('blank')) {
+      setVariablesValues(dummyValues);
     }
 
     setTemplateContent(templateData.content);
@@ -54,18 +44,27 @@ function HomePage() {
     const { name, value } = variableData;
     const variableMarker = `{${name}}`;
 
-    const updatedTemplateContent = templateContent.replace(
+    const modifiedContent = encodeTemplateString();
+    const updatedTemplateContent = modifiedContent.replace(
       new RegExp(`${value}`, 'g'),
       variableMarker
     );
 
-    const templateVariablesData = [
-      ...data.variables,
-      { id: `${data.variables.length + 1}`, name },
-    ];
-    const updatedVariablesData = [...variablesData, variableData];
+    const existingVariable = data.variables.reduce(
+      (acc, current) => acc || name === current.name,
+      false
+    );
 
-    setVariablesData(updatedVariablesData);
+    const templateVariablesData = [...data.variables];
+    if (!existingVariable) {
+      templateVariablesData.push({ name });
+      const updatedVariablesData = {
+        ...variablesValues,
+        [name]: value,
+      };
+      setVariablesValues(updatedVariablesData);
+    }
+
     setTemplateContent(updatedTemplateContent);
     setData({
       content: updatedTemplateContent,
@@ -74,40 +73,37 @@ function HomePage() {
     setSelectedText('');
   };
 
-  const handleVariableValue = (variableID, variableName, variableValue) => {
+  const handleVariableValue = (variableName, variableValue) => {
     const modifiedContent = encodeTemplateString();
+
+    let variables = {
+      ...variablesValues,
+      [variableName]: variableValue,
+    };
 
     setTemplateContent(modifiedContent);
     setData({
       ...data,
       content: modifiedContent,
     });
-
-    let variables = variablesData.filter(
-      (variable) => variable.name !== variableName
-    );
-
-    variables = [
-      ...variables,
-      { id: variableID, name: variableName, value: variableValue },
-    ];
-    variables.sort((a, b) => parseInt(a.id) - parseInt(b.id));
-
-    setVariablesData(variables);
+    setVariablesValues(variables);
     setSelectedText('');
   };
 
   const encodeTemplateString = () => {
     let modifiedContent = templateContent;
 
-    variablesData.forEach((variable) => {
+    data.variables.forEach((variable) => {
+      const { name } = variable;
+      const variableValue = variablesValues[name];
+
       const placeholder = `<span class="variable ${
-        variable.value ? '' : 'placeholder'
-      }">${variable.value ?? variable.name}</span>`;
+        variableValue ? '' : 'placeholder'
+      }">${variableValue ?? name}</span>`;
 
       modifiedContent = modifiedContent.replace(
         new RegExp(placeholder, 'g'),
-        `{${variable.name}}`
+        `{${name}}`
       );
     });
 
@@ -146,23 +142,21 @@ function HomePage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleVariableDeletion = (variable) => {
+  const handleVariableDeletion = (variableName) => {
     const modifiedTemplate = encodeTemplateString();
 
-    const placeholder = `{${variable.name}}`;
+    const placeholder = `{${variableName}}`;
     const modifiedContent = modifiedTemplate.replace(
       new RegExp(placeholder, 'g'),
-      `${variable.value ?? ''}`
+      `${variablesValues[variableName] ?? ''}`
     );
 
     const updatedTemplateVariables = data.variables.filter(
-      (currentVar) => currentVar.name !== variable.name
+      (currentVar) => currentVar.name !== variableName
     );
-    const updatedVariablesData = variablesData.filter(
-      (currentVar) => currentVar.name !== variable.name
-    );
+    delete variablesValues[variableName];
 
-    setVariablesData(updatedVariablesData);
+    setVariablesValues({ ...variablesValues });
     setTemplateContent(modifiedContent);
     setData({
       content: modifiedContent,
@@ -174,53 +168,58 @@ function HomePage() {
     setSelectedText('');
   };
 
-  return (
-    <AppLayout>
-      <div className="home-page">
-        <section className="main-section">
-          <div className="main-container">
-            <TextBox
-              data={data}
-              setSelectedText={setSelectedText}
-              setTemplateContent={setTemplateContent}
-              variablesData={variablesData}
-            />
-            <div className="buttons-container">
-              <Button>
-                <PDFDownloadLink
-                  document={
-                    <PDFDocument
-                      templateData={templateContent}
-                      variablesData={variablesData}
-                    />
-                  }
-                  fileName="offer-letter.pdf">
-                  {({ loading }) =>
-                    loading ? 'Loading document...' : 'Export'
-                  }
-                </PDFDownloadLink>
-              </Button>
-              <Button onClick={saveAsTemplate}>Save as Template</Button>
+  if (data) {
+    return (
+      <AppLayout>
+        <div className="home-page">
+          <section className="main-section">
+            <div className="main-container">
+              <TextBox
+                data={data}
+                setSelectedText={setSelectedText}
+                setTemplateContent={setTemplateContent}
+                variablesValues={variablesValues}
+              />
+              <div className="buttons-container">
+                <Button>
+                  <PDFDownloadLink
+                    document={
+                      <PDFDocument
+                        templateData={templateContent}
+                        variablesData={data.variables}
+                        variablesValues={variablesValues}
+                      />
+                    }
+                    fileName="offer-letter.pdf">
+                    {({ loading }) =>
+                      loading ? 'Loading document...' : 'Export'
+                    }
+                  </PDFDownloadLink>
+                </Button>
+                <Button onClick={saveAsTemplate}>Save as Template</Button>
+              </div>
             </div>
-          </div>
-        </section>
-        <section className="variables-section">
-          <VariablesTable
-            variablesData={variablesData}
-            updateVariableValue={handleVariableValue}
-            deleteVariable={handleVariableDeletion}
+          </section>
+          <section className="variables-section">
+            <VariablesTable
+              variablesData={data.variables}
+              variablesValues={variablesValues}
+              updateVariableValue={handleVariableValue}
+              deleteVariable={handleVariableDeletion}
+            />
+          </section>
+        </div>
+        {selectedText && (
+          <CustomModal
+            makeVariable={handleConversionToVariable}
+            handleCancel={handleCancel}
+            selectedText={selectedText}
           />
-        </section>
-      </div>
-      {selectedText && (
-        <CustomModal
-          makeVariable={handleConversionToVariable}
-          handleCancel={handleCancel}
-          selectedText={selectedText}
-        />
-      )}
-    </AppLayout>
-  );
+        )}
+      </AppLayout>
+    );
+  }
+  return <></>;
 }
 
 export default HomePage;

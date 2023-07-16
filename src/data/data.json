@@ -5,15 +5,12 @@
       "content": "Hi {Name},<div><br><div>We are pleased to offer you the {Position} role. Your CTC will be Rs. {CTC} Lakhs per year.</div></div><div><br></div><div>Thanks</div>",
       "variables": [
         {
-          "id": "1",
           "name": "Name"
         },
         {
-          "id": "2",
           "name": "Position"
         },
         {
-          "id": "3",
           "name": "CTC"
         }
       ]

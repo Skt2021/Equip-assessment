@@ -8,6 +8,7 @@ const { Title } = Typography;
 
 function VariablesTable({
   variablesData,
+  variablesValues,
   updateVariableValue,
   deleteVariable,
 }) {
@@ -19,28 +20,25 @@ function VariablesTable({
       <Divider className="divider" />
       <Form layout="vertical" className="variable-form">
         {variablesData?.map((variable) => {
+          const { name } = variable;
+          const variableValue = variablesValues[name];
+
           return (
             <Form.Item
               style={{ width: '100%' }}
-              key={variable.name}
-              name={variable.name}
-              label={capitaliseFirstLetter(variable.name)}>
+              key={name}
+              name={name}
+              label={capitaliseFirstLetter(name)}>
               <Space>
                 <Input
-                  value={variable.value}
-                  defaultValue={variable.value}
-                  placeholder={`Please enter ${variable.name}`}
-                  onChange={(e) =>
-                    updateVariableValue(
-                      variable.id,
-                      variable.name,
-                      e.target.value
-                    )
-                  }
+                  value={variableValue}
+                  defaultValue={variableValue}
+                  placeholder={`Please enter ${name}`}
+                  onChange={(e) => updateVariableValue(name, e.target.value)}
                 />
                 <Tooltip title="Delete Variable">
                   <DeleteOutlined
-                    onClick={() => deleteVariable(variable)}
+                    onClick={() => deleteVariable(name)}
                     style={{ color: '#f5222d' }}
                     type="danger"
                   />

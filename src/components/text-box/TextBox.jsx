@@ -1,6 +1,11 @@
 import './textBox.scss';
 
-function TextBox({ data, variablesData, setSelectedText, setTemplateContent }) {
+function TextBox({
+  data,
+  variablesValues,
+  setSelectedText,
+  setTemplateContent,
+}) {
   const getSelectedText = () => {
     const selection = window.getSelection();
     const selectionStart = selection.anchorOffset;
@@ -27,15 +32,18 @@ function TextBox({ data, variablesData, setSelectedText, setTemplateContent }) {
   const parseContent = () => {
     let modifiedText;
 
-    if (data?.content) {
-      const { content } = data;
+    if (data.content) {
+      const { content, variables } = data;
       modifiedText = content;
 
-      variablesData.forEach((variable) => {
-        const placeholder = `{${variable.name}}`;
+      variables.forEach((variable) => {
+        const { name } = variable;
+        const variableValue = variablesValues[name];
+
+        const placeholder = `{${name}}`;
         const variableInput = `<span class="variable ${
-          variable.value ? '' : 'placeholder'
-        }">${variable.value ?? variable.name}</span>`;
+          variableValue ? '' : 'placeholder'
+        }">${variableValue ?? name}</span>`;
 
         modifiedText = modifiedText.replace(
           new RegExp(placeholder, 'g'),

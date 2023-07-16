@@ -9,13 +9,18 @@ const styles = StyleSheet.create({
   },
 });
 
-const PDFDocument = ({ templateData, variablesData }) => {
+const PDFDocument = ({ templateData, variablesData, variablesValues }) => {
   let modifiedText;
+
   if (templateData) {
     modifiedText = templateData;
+
     variablesData.forEach((variable) => {
-      const placeholder = `{${variable.name}}`;
-      const variableValue = `${variable.value ?? ''}`;
+      const { name } = variable;
+
+      const placeholder = `{${name}}`;
+      const variableValue = `${variablesValues[name] ?? ''}`;
+
       modifiedText = modifiedText.replace(
         new RegExp(placeholder, 'g'),
         variableValue
